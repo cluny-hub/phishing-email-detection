@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phishing Email Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #000;
+            color: #fff;
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+        }
+        textarea, input[type="email"], select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #222;
+            color: #fff;
+        }
+        label {
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 15px;
+            color: #fff;
+            transition: all 0.3s ease;
+            display: inline-block;
+            padding: 8px 15px;
+            border: 2px solid white;
+            border-radius: 6px;
+            user-select: none;
+        }
+        /* Hide default radio button but keep accessible */
+        input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        /* When radio is checked, style the label */
+        input[type="radio"]:checked + label {
+            background-color: #4CAF50; /* green background */
+            border-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .result.safe {
+            background-color: #1E90FF;
+            border-left: 5px solid #2196F3;
+            color: white;
+        }
+        .result.phishing {
+            background-color: #B22222;
+            border-left: 5px solid #FF4500;
+            color: white;
+        }
+        .result.unknown {
+            background-color: #FF8C00;
+            border-left: 5px solid #FFA500;
+            color: white;
+        }
+        .highlight {
+            color: #ff4c4c;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 20px;
+        }
+        /* Container for radio options to align nicely */
+        .radio-group {
+            margin-bottom: 20px;
+        }
+        /* Make sure labels are inline and spaced */
+        .radio-group label {
+            margin-right: 15px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Phishing Email Detector</h1>
+
+    <p>This tool can detect phishing emails before they can harm you. If you receive a suspicious email—with a strange link, unusual email address, or anything else that seems off—you can enter the email content into the input boxes to check whether it's a phishing attempt.</p>
+
+    <form action="/scan" method="POST">
+        <label for="email_address">Please enter the suspicious email address:</label>
+        <input type="email" id="email_address" name="email_address" required>
+
+        <label for="email_content">Please enter the email content over here:</label>
+        <textarea id="email_content" name="email_content" rows="8" required></textarea>
+
+        <div class="radio-group">
+            <p><strong>Do you get emails like this regularly?</strong></p>
+            <input type="radio" id="freq_regularly" name="frequency" value="Regularly" required>
+            <label for="freq_regularly">Yes</label>
+
+            <input type="radio" id="freq_rarely" name="frequency" value="Rarely">
+            <label for="freq_rarely">Rarely</label>
+        </div>
+
+        <div class="radio-group">
+            <p><strong>Did you think this email is a phishing attempt?</strong></p>
+            <input type="radio" id="guess_no" name="user_guess" value="No" required>
+            <label for="guess_no">No</label>
+
+            <input type="radio" id="guess_yes" name="user_guess" value="Yes">
+            <label for="guess_yes">Yes</label>
+
+            <input type="radio" id="guess_not_sure" name="user_guess" value="Not Sure">
+            <label for="guess_not_sure">Not Sure</label>
+        </div>
+
+        <button class="button" type="submit">Final Scan</button>
+    </form>
+
+    {% if prediction_text %}
+    <div class="result
+        {% if prediction_text == 'This is a phishing attempt.' or prediction_text.startswith('This is a phishing attempt') %}
+            phishing
+        {% elif prediction_text == "This email looks legit—no suspicious information was found." %}
+            safe
+        {% else %}
+            unknown
+        {% endif %}
+    ">
+        <h2>Result</h2>
+        <p><strong>Email Address:</strong> {{ email_address }}</p>
+        <p><strong>Your Guess:</strong> {{ user_guess }}</p>
+        <p><strong>Our Detection:</strong> {{ prediction_text }}</p>
+        <p><strong>Guess Accuracy:</strong> {{ accuracy_percent }}</p>
+        <p><strong>Email Content:</strong></p>
+        <div>{{ highlight_text|safe }}</div>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>In real life, you can spot a phishing email by looking for signs that something isn’t right. Check if the sender’s email address looks strange or slightly misspelled. Look out for urgent or scary messages, like saying your account will be closed unless you act fast. Phishing emails often have bad grammar or spelling mistakes. They may also include suspicious links—hover your mouse over the link (don’t click!) to see where it really goes. If it doesn’t match the company’s official website, it’s likely a scam. Always think twice before clicking anything or entering personal info.</p>
+    </div>
+
+</body>
+</html>
